@@ -9,4 +9,4 @@ By using this you can show a single item using an array. i.e. [2020,2021,2023,20
 ```
 
 ## Demo
-![](/readme_files/demo.gif)
+<img src="/readme_files/demo.gif" alt="test" width="300">
