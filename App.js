@@ -1,42 +1,38 @@
 import { View, Text, Dimensions, Animated, TouchableOpacity, Button } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
+import { StatusBar } from 'expo-status-bar'
 
 const { width, height } = Dimensions.get('window')
 
-const Picker = props => {
+
+const Picker = ({ data, boxHeight, setItem }) => {
 
   const scrollY = useRef(new Animated.Value(0)).current
 
   const pickerRef = useRef(null)
 
   const currentYear = new Date().getFullYear();
-  const scrollToIndex = props.data.indexOf(currentYear);
+  const scrollToIndex = data.indexOf(currentYear);
 
   useEffect(() => {
-    // Replace 2 with the desired index to scroll to
-    // pickerRef.current.scrollToIndex({ index: 5, animated: true })
+    setTimeout(() => {
+      pickerRef.current.scrollToIndex({ index: scrollToIndex, animated: true })
+    }, 100);
   }, []);
 
-  console.log(props.data[scrollToIndex])
-
-
   const getItemLayout = (data, index) => ({
-    length: 50,
-    offset: 50 * index,
+    length: boxHeight,
+    offset: boxHeight * index,
     index,
   })
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-<View style={{position:'absolute', top:5}} >
-  
-      <Button title='scrollTo' onPress={()=>{pickerRef.current.scrollToIndex({ index: scrollToIndex, animated: true })}}/>
-</View>
 
       <View style={{ position: 'absolute' }}>
         <View style={{
           width,
-          height: 50,
+          height: boxHeight,
           borderTopWidth: 1,
           borderBottomWidth: 1
           // elevation: 5,
@@ -47,16 +43,16 @@ const Picker = props => {
         }} />
       </View>
 
-      <View style={{ height: 250 }}>
+      <View style={{ height: boxHeight * 5 }}>
         <Animated.FlatList
-          data={props.data}
+          data={data}
           pagingEnabled
           ref={pickerRef}
           getItemLayout={getItemLayout}
 
           // initialScrollIndex={8}
           // bounces={false}
-          snapToInterval={50}
+          snapToInterval={boxHeight}
           showsVerticalScrollIndicator={false}
           onScroll={Animated.event(
             [{ nativeEvent: { contentOffset: { y: scrollY } } }],
@@ -64,19 +60,19 @@ const Picker = props => {
           )}
           onMomentumScrollEnd={(event) => {
             const offsetY = event.nativeEvent.contentOffset.y;
-            const selectedIndex = Math.round(offsetY / 50);
+            const selectedIndex = Math.round(offsetY / boxHeight);
             // setSelectedYear(years[selectedIndex]);
-            props.setItem(props.data[selectedIndex])
+            setItem(data[selectedIndex])
           }}
-          contentContainerStyle={{ justifyContent: 'center', alignItems: "center", width, paddingVertical: 100 }}
+          contentContainerStyle={{ justifyContent: 'center', alignItems: "center", width, paddingVertical: boxHeight * 2 }}
           renderItem={({ item, index }) => {
 
             const inputRange = [
-              (index - 2) * 50,
-              (index - 1) * 50,
-              index * 50,
-              (index + 1) * 50,
-              (index + 2) * 50,
+              (index - 2) * boxHeight,
+              (index - 1) * boxHeight,
+              index * boxHeight,
+              (index + 1) * boxHeight,
+              (index + 2) * boxHeight,
             ];
 
             const scale = scrollY.interpolate({
@@ -99,7 +95,7 @@ const Picker = props => {
             return (
               <Animated.View style={{
                 opacity,
-                height: 50,
+                height: boxHeight,
                 alignItems: 'center',
                 justifyContent: 'center',
                 transform: [
@@ -119,6 +115,9 @@ const Picker = props => {
   )
 }
 
+
+const yearBoxHeight = Math.floor(height * .08)
+
 const App = () => {
 
   const [selectedYear, setSelectedYear] = useState(null);
@@ -133,11 +132,11 @@ const App = () => {
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', }}>
-
+      <StatusBar style='dark' />
       <View style={{ flex: .5, alignItems: "center", justifyContent: 'center', }}>
         <Text style={{}}>selected year : {selectedYear}</Text>
       </View>
-      <Picker setItem={setSelectedYear} data={years} />
+      <Picker setItem={setSelectedYear} data={years} boxHeight={yearBoxHeight} />
     </View>
   )
 }
